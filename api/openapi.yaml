@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: UniBox
+  description: |
+    Сайт unibox.com
+  version: 1.0.0-oas3
+servers:
+- url: http://127.0.0.1/api
+- url: https://127.0.0.1/api
+paths:
+  /user:
+    post:
+      summary: Создание нового пользователя
+      description: |
+        Создание нового пользователя в базе данных.
+      operationId: userCreate
+      requestBody:
+        description: Данные пользовательского профиля.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+        required: true
+      responses:
+        "201":
+          description: |
+            Пользователь успешно создан.
+            Возвращает данные созданного пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: |
+            Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "409":
+          description: |
+            Пользователь уже присутсвует в базе данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /user/{nickname}:
+    get:
+      summary: Получение информации о пользователе
+      description: |
+        Получение информации о пользователе.
+      parameters:
+      - name: nickname
+        in: path
+        description: Идентификатор пользователя.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: |
+            Возвращает данные пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          description: |
+            Пользователь отсутсвует.
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+    User:
+      required:
+      - email
+      - nickname
+      type: object
+      properties:
+        email:
+          type: string
+          description: Почтовый адрес пользователя (уникальное поле).
+          format: email
+          example: zzyxel@yndex.ru
+          x-isnullable: false
+        nickname:
+          type: string
+          description: |
+            Имя пользователя (уникальное поле).
+            Данное поле допускает только латиницу, цифры и знак подчеркивания.
+          format: identity
+          example: zzyxel
+        firstname:
+          type: string
+          description: Имя пользователя.
+          example: Максим
+          x-isnullable: false
+        lastname:
+          type: string
+          description: Фамилия пользователя.
+          example: Рубцов
+          x-isnullable: false
+      description: |
+        Информация о пользователе.
+      example:
+        email: zzyxel@yndex.ru
+        nickname: zzyxel
+        firstname: Максим
+        lastname: Рубцов
+    CreateUser:
+      required:
+      - email
+      - nickname
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          description: Почтовый адрес пользователя (уникальное поле).
+          format: email
+          example: zzyxel@yndex.ru
+          x-isnullable: false
+        password:
+          type: string
+          description: Пароль
+          example: string
+          x-isnullable: false
+        nickname:
+          type: string
+          description: |
+            Имя пользователя (уникальное поле).
+            Данное поле допускает только латиницу, цифры и знак подчеркивания.
+          format: identity
+          example: zzyxel
+        firstname:
+          type: string
+          description: Имя пользователя.
+          example: Максим
+          x-isnullable: false
+        lastname:
+          type: string
+          description: Фамилия пользователя.
+          example: Рубцов
+          x-isnullable: false
+      description: |
+        Информация о пользователе.
+      example:
+        email: zzyxel@yndex.ru
+        password: string
+        nickname: zzyxel
+        firstname: Максим
+        lastname: Рубцов
