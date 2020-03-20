@@ -5,15 +5,57 @@ info:
     Сайт unibox.com
   version: 1.0.0-oas3
 servers:
-- url: http://127.0.0.1/api
-- url: https://127.0.0.1/api
+- url: http://127.0.0.1:3000/api
+- url: https://127.0.0.1:3000/api
 paths:
+  /session:
+    post:
+      summary: Создание сессии
+      description: |
+          Создание сессии и проставление в куках.
+      requestBody:
+        description: Учетные данные пользователя для входа.
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required: [username, password]
+              properties:
+                password:
+                  type: string
+                  description: Пароль
+                  example: string
+                  x-isnullable: false
+                nickname:
+                  type: string
+                  description: |
+                    Имя пользователя (уникальное поле).
+                    Данное поле допускает только латиницу, цифры и знак подчеркивания.
+                  format: identity
+                  example: zzyxel
+      responses:
+        "201":
+          description: |
+            OK
+        "401":
+          description: |
+            Authorization information is missing or invalid.
+    delete:
+      summary: Удаление сессии
+      description: |
+            Удаление сессии.
+      responses:
+        "200":
+          description: |
+            OK
+        "401":
+          description: |
+            Authorization information is missing or invalid.
   /user:
     post:
       summary: Создание нового пользователя
       description: |
         Создание нового пользователя в базе данных.
-      operationId: userCreate
       requestBody:
         description: Данные пользовательского профиля.
         content:
@@ -44,6 +86,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                
   /user/{nickname}:
     get:
       summary: Получение информации о пользователе
@@ -155,3 +198,4 @@ components:
         nickname: zzyxel
         firstname: Максим
         lastname: Рубцов
+        
