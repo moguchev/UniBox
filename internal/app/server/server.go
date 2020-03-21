@@ -19,13 +19,14 @@ func NewRouter() (*mux.Router, error) {
 	router = router.PathPrefix("/api/").Subrouter()
 
 	h := handler.Handler{}
+	mw := middleware.InitMiddleware()
 
-	router.Use(middleware.RequestIDMiddleware)
-	router.Use(middleware.AccessLogMiddleware)
-	router.Use(middleware.CORSMiddleware)
-	router.Use(middleware.PanicMiddleware)
+	router.Use(mw.RequestIDMiddleware)
+	router.Use(mw.AccessLogMiddleware)
+	router.Use(mw.CORSMiddleware)
+	router.Use(mw.RecoverMiddleware)
 
-	router.HandleFunc("/user", h.GetUser).Methods(http.MethodPost, http.MethodOptions)
+	router.HandleFunc("/user", h.CreateUser).Methods(http.MethodPost, http.MethodOptions)
 
 	return router, nil
 }

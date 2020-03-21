@@ -10,7 +10,7 @@ import (
 type ctxKey string
 
 // RequestIDMiddleware - присвоение запросу id
-func RequestIDMiddleware(next http.Handler) http.Handler {
+func (mw *Middleware) RequestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqID := strconv.Itoa(rand.Int())
 		ctx := r.Context()
