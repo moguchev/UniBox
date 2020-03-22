@@ -15,6 +15,7 @@ var (
 			http.MethodPut,
 			http.MethodDelete,
 			http.MethodHead,
+			http.MethodOptions,
 		},
 		AllowHeaders: []string{
 			"Content-Type",

@@ -1,10 +1,6 @@
 package users
 
-import (
-	"github.com/google/uuid"
-)
-
-// Repository -
+// Repository - database level
 type Repository interface {
 	CreateUser() bool
 }
