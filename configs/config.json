@@ -1,0 +1,22 @@
+{
+    "debug": true,
+
+    "main_server": {
+      "address": ":3000",
+      "write_timeout": 15,
+      "read_timeout": 5
+    },
+
+    "context":{
+      "timeout":2
+    },
+    
+    "database": {
+        "host": "mysql",
+        "port": "3306",
+        "user": "user",
+        "pass": "password",
+        "name": "article"
+    }
+  
+}

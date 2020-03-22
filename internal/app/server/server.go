@@ -2,12 +2,12 @@ package server
 
 import (
 	"net/http"
-	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
-	"github.com/moguchev/UniBox/internal/pkg/config"
 	"github.com/moguchev/UniBox/internal/pkg/middleware"
 
 	_usersHttpDeliver "github.com/moguchev/UniBox/internal/app/users/delivery/http"
@@ -27,7 +27,9 @@ func NewRouter() (*mux.Router, error) {
 	router.Use(mw.RecoverMiddleware)
 
 	uRepo := _usersRepo.NewUsersRepository(nil)
-	uUsecase := _usersUcase.NewUsersUsecase(uRepo, config.ContextTimeout)
+
+	timeoutContext := time.Duration(viper.GetInt64("context.timeout")) * time.Second
+	uUsecase := _usersUcase.NewUsersUsecase(uRepo, timeoutContext)
 
 	_usersHttpDeliver.NewUsersHandler(router, uUsecase)
 
@@ -38,14 +40,17 @@ func NewRouter() (*mux.Router, error) {
 func RunServer() {
 	router, err := NewRouter()
 	if err != nil {
-		log.Fatal("Failed to create router")
+		log.Fatalf("Failed to create router: %s", err)
 	}
-	addr := ":" + strconv.Itoa(config.MainAppPort)
+	addr := viper.GetString("main_server.address")
+	writeTimeout := viper.GetInt64("main_server.write_timeout")
+	readTimeout := viper.GetInt64("main_server.read_timeout")
+
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         addr,
-		WriteTimeout: config.MainAppWriteTimeout,
-		ReadTimeout:  config.MainAppReadTimeout,
+		WriteTimeout: time.Duration(writeTimeout) * time.Second,
+		ReadTimeout:  time.Duration(readTimeout) * time.Second,
 	}
 	log.Infof("Server started at %s", addr)
 	log.Fatal(srv.ListenAndServe())
