@@ -5,12 +5,14 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 
-	"github.com/moguchev/UniBox/internal/app/server/handler"
 	"github.com/moguchev/UniBox/internal/pkg/config"
 	"github.com/moguchev/UniBox/internal/pkg/middleware"
 
-	log "github.com/sirupsen/logrus"
+	_usersHttpDeliver "github.com/moguchev/UniBox/internal/app/users/delivery/http"
+	_usersRepo "github.com/moguchev/UniBox/internal/app/users/repository"
+	_usersUcase "github.com/moguchev/UniBox/internal/app/users/usecase"
 )
 
 // NewRouter - returns router
@@ -18,15 +20,16 @@ func NewRouter() (*mux.Router, error) {
 	router := mux.NewRouter()
 	router = router.PathPrefix("/api/").Subrouter()
 
-	h := handler.Handler{}
 	mw := middleware.InitMiddleware()
-
 	router.Use(mw.RequestIDMiddleware)
 	router.Use(mw.AccessLogMiddleware)
 	router.Use(mw.CORSMiddleware)
 	router.Use(mw.RecoverMiddleware)
 
-	router.HandleFunc("/user", h.CreateUser).Methods(http.MethodPost, http.MethodOptions)
+	uRepo := _usersRepo.NewUsersRepository(nil)
+	uUsecase := _usersUcase.NewUsersUsecase(uRepo, config.ContextTimeout)
+
+	_usersHttpDeliver.NewUsersHandler(router, uUsecase)
 
 	return router, nil
 }

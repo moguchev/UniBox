@@ -6,7 +6,7 @@ import (
 	"github.com/moguchev/UniBox/internal/app/models"
 )
 
-// Repository - database level
-type Repository interface {
+// Usecase - business logic
+type Usecase interface {
 	CreateUser(ctx context.Context, user models.User, password string) error
 }

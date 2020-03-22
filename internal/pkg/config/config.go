@@ -13,3 +13,6 @@ const MainAppReadTimeout = 5 * time.Second
 
 // Debug - дебаг
 const Debug = true
+
+// ContextTimeout - лимит на запрос в DB
+const ContextTimeout = 2 * time.Second
