@@ -16,3 +16,8 @@
 
 # idea
 .vscode
+
+# binaries
+main
+
+scripts/

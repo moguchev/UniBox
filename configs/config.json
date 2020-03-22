@@ -3,20 +3,21 @@
 
     "main_server": {
       "address": ":3000",
-      "write_timeout": 15,
-      "read_timeout": 5
+      "read_timeout": 5,
+      "write_timeout": 15
     },
 
     "context":{
-      "timeout":2
+      "timeout": 2
     },
     
-    "database": {
-        "host": "mysql",
-        "port": "3306",
-        "user": "user",
-        "pass": "password",
-        "name": "article"
+    "main_database": {
+        "host": "localhost",
+        "port": "5432",
+        "user": "leo",
+        "pass": "unibox",
+        "name": "unibox",
+        "max_connections": 5,
+        "acquire_timeout": 2
     }
-  
 }

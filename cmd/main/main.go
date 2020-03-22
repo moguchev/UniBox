@@ -25,5 +25,27 @@ func init() {
 }
 
 func main() {
-	server.RunServer()
+	serverOptions := server.MainServerOptions{}
+	err := viper.UnmarshalKey("main_server", &serverOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dbOptions := server.MainDBOptions{}
+	viper.UnmarshalKey("main_database", &dbOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ctxOptions := server.ContextOptions{}
+	viper.UnmarshalKey("context", &ctxOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	server.RunServer(server.Options{
+		Server:   serverOptions,
+		Database: dbOptions,
+		Context:  ctxOptions,
+	})
 }
