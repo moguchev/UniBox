@@ -13,7 +13,7 @@
     
     "main_database": {
         "host": "localhost",
-        "port": "5432",
+        "port": 5432,
         "user": "leo",
         "pass": "unibox",
         "name": "unibox",
