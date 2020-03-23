@@ -5,6 +5,8 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+
+	"github.com/moguchev/UniBox/internal/app/models"
 )
 
 // AccessLogMiddleware - тайминги запросов
@@ -14,7 +16,7 @@ func (mw *Middleware) AccessLogMiddleware(next http.Handler) http.Handler {
 		log.WithFields(log.Fields{
 			"method":      r.Method,
 			"remote_addr": r.RemoteAddr,
-			"request_id":  r.Context().Value(ctxKey("rID")),
+			"request_id":  r.Context().Value(models.CtxKey("rID")),
 		}).Info(r.URL.Path)
 
 		next.ServeHTTP(w, r)
@@ -23,7 +25,7 @@ func (mw *Middleware) AccessLogMiddleware(next http.Handler) http.Handler {
 			"method":      r.Method,
 			"remote_addr": r.RemoteAddr,
 			"work_time":   time.Since(start),
-			"request_id":  r.Context().Value(ctxKey("rID")),
+			"request_id":  r.Context().Value(models.CtxKey("rID")),
 		}).Info(r.URL.Path)
 	})
 }
