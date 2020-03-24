@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -32,16 +31,23 @@ func (u *userUsecase) CreateUser(ctx context.Context, user models.User) error {
 
 	_, err := govalidator.ValidateStruct(user)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"request_id": rID,
-		}).Debug(err)
+		log.WithFields(log.Fields{"request_id": rID}).Debug(err)
+		err = models.Error{
+			Type:     models.BadRequest,
+			Target:   "body",
+			Message:  err.Error(),
+			Original: err,
+		}
 		return err
 	}
 	if govalidator.IsNull(user.Password) {
-		err = errors.New("password: empty")
-		log.WithFields(log.Fields{
-			"request_id": rID,
-		}).Debug(err)
+		err = models.Error{
+			Type:     models.BadRequest,
+			Target:   "password",
+			Message:  "required",
+			Original: err,
+		}
+		log.WithFields(log.Fields{"request_id": rID}).Debug(err)
 		return err
 	}
 

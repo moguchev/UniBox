@@ -11,6 +11,7 @@ import (
 
 	"github.com/moguchev/UniBox/internal/app/models"
 	"github.com/moguchev/UniBox/internal/app/users"
+	respond "github.com/moguchev/UniBox/pkg/respond"
 )
 
 // UsersHandler represent the httphandler for users
@@ -40,20 +41,26 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"request_id": rID,
-		}).Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		err = models.Error{
+			Type:     models.BadRequest,
+			Target:   "body",
+			Message:  "invalid",
+			Original: err,
+		}
+		respond.Error(w, r, http.StatusBadRequest, err)
 		return
 	}
 
 	user := models.User{}
 	err = json.Unmarshal(bytes, &user)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"request_id": rID,
-		}).Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		err = models.Error{
+			Type:     models.BadRequest,
+			Target:   "body",
+			Message:  "invalid",
+			Original: err,
+		}
+		respond.Error(w, r, http.StatusBadRequest, err)
 		return
 	}
 
@@ -64,10 +71,10 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Usecase.CreateUser(ctx, user)
 	if err != nil {
-
+		respond.Error(w, r, http.StatusBadRequest, err)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(bytes)
 }
