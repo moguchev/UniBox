@@ -15,9 +15,13 @@ const (
 	Internal
 )
 
+// ReqIDKey -
+const ReqIDKey = "rID"
+
 // ErrorType -
 type ErrorType uint
 
+// ErrorMessage -
 type ErrorMessage struct {
 	Target      string            `json:"target"`
 	Message     string            `json:"message"`
@@ -42,9 +46,9 @@ type CtxKey string
 
 // User - пользователь
 type User struct {
-	Email     string `json:"email"     db:"email"     valid:"email,required"`
-	Nickname  string `json:"nickname"  db:"nickname"  valid:"matches(^[A-Za-z0-9_.]*$),required"`
-	Firstname string `json:"firstname" db:"firstname" valid:"utfletter,runelength(1|50),required"`
-	Lastname  string `json:"lastname"  db:"lastname"  valid:"utfletter,runelength(1|50),required"`
-	Password  string `json:"password,omitempty" valid:"-"`
+	Email     string `json:"email"     db:"email"`
+	Nickname  string `json:"nickname"  db:"nickname"`
+	Firstname string `json:"firstname" db:"firstname"`
+	Lastname  string `json:"lastname"  db:"lastname"`
+	Password  string `json:"password,omitempty"`
 }

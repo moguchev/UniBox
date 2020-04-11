@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"strings"
 
 	"github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
@@ -22,22 +23,36 @@ func NewUsersRepository(Conn *sqlx.DB) users.Repository {
 }
 
 func (repo *usersRepository) CreateUser(ctx context.Context, user models.User) error {
-	rID := ctx.Value(models.CtxKey("rID"))
+	rID := ctx.Value(models.CtxKey(models.ReqIDKey))
 	query := `INSERT INTO Users (nickname, password_digest, email, firstname, lastname)
 				VALUES ($1, $2, $3, $4, $5);`
-	_, err := repo.Conn.ExecContext(ctx, query,
+	res, err := repo.Conn.ExecContext(ctx, query,
 		user.Nickname, user.Password, user.Email, user.Firstname, user.Lastname)
+	log.Print(res)
 
 	if err != nil {
-		log.WithFields(log.Fields{"request_id": rID}).Debug(err)
+		log.WithFields(log.Fields{
+			"request_id": rID,
+			"place":      "repository",
+			"action":     "exec",
+		}).Debug(res, err)
+
 		if e, ok := err.(pgx.PgError); ok {
 			switch e.Code {
 			case psql.UniqueViolation:
+				target := (strings.Split(e.ConstraintName, " ")[1])
 				err = models.Error{
 					Type:     models.AlreadyExists,
-					Target:   e.ConstraintName,
-					Message:  "Already exists",
-					Original: err,
+					Target:   target,
+					Message:  e.Error(),
+					Original: e,
+				}
+				break
+			default:
+				err = models.Error{
+					Type:     models.NoType,
+					Message:  e.Error(),
+					Original: e,
 				}
 				log.Print(e.Code)
 				log.Print(e.ColumnName)
@@ -56,14 +71,12 @@ func (repo *usersRepository) CreateUser(ctx context.Context, user models.User) e
 				log.Print(e.Severity)
 				log.Print(e.TableName)
 				log.Print(e.Where)
-			default:
-				log.WithFields(log.Fields{"request_id": rID}).Error(err)
 				break
 			}
 		} else {
-			log.WithFields(log.Fields{"request_id": rID}).Error(err)
 			err = models.Error{
 				Type:     models.Internal,
+				Message:  err.Error(),
 				Original: err,
 			}
 		}

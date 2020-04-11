@@ -11,6 +11,7 @@ import (
 
 	"github.com/moguchev/UniBox/internal/app/models"
 	"github.com/moguchev/UniBox/internal/app/users"
+	"github.com/moguchev/UniBox/internal/pkg/messages"
 	respond "github.com/moguchev/UniBox/pkg/respond"
 )
 
@@ -37,14 +38,14 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	rID := ctx.Value(models.CtxKey("rID"))
+	rID := ctx.Value(models.CtxKey(models.ReqIDKey))
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		err = models.Error{
 			Type:     models.BadRequest,
 			Target:   "body",
-			Message:  "invalid",
+			Message:  messages.Invalid,
 			Original: err,
 		}
 		respond.Error(w, r, http.StatusBadRequest, err)
@@ -57,7 +58,7 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		err = models.Error{
 			Type:     models.BadRequest,
 			Target:   "body",
-			Message:  "invalid",
+			Message:  messages.Invalid,
 			Original: err,
 		}
 		respond.Error(w, r, http.StatusBadRequest, err)
@@ -66,8 +67,9 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	log.WithFields(log.Fields{
 		"request_id": rID,
-		"user":       user,
-	}).Debug("Unmarshal user")
+		"place":      "delivery",
+		"action":     "unmarshal",
+	}).Debug(user)
 
 	err = h.Usecase.CreateUser(ctx, user)
 	if err != nil {
