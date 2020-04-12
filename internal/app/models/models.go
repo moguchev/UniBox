@@ -2,6 +2,12 @@ package models
 
 import "fmt"
 
+// ErrorType -
+type ErrorType uint
+
+// CtxKey - ctx key
+type CtxKey string
+
 const (
 	// NoType - Unknown error
 	NoType = ErrorType(iota)
@@ -19,9 +25,6 @@ const (
 
 // ReqIDKey -
 const ReqIDKey = "rID"
-
-// ErrorType -
-type ErrorType uint
 
 // ErrorMessage -
 type ErrorMessage struct {
@@ -42,9 +45,6 @@ type Error struct {
 func (e Error) Error() string {
 	return fmt.Sprintf("%s: %s", e.Target, e.Message)
 }
-
-// CtxKey - ctx key
-type CtxKey string
 
 // User - пользователь
 type User struct {

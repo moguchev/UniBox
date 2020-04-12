@@ -11,9 +11,9 @@ import (
 func Error(w http.ResponseWriter, r *http.Request, code int, err error) {
 	if e, ok := err.(models.Error); ok {
 		msg := models.ErrorMessage{
-			e.Target,
-			e.Message,
-			e.ContextInfo,
+			Target:      e.Target,
+			Message:     e.Message,
+			ContextInfo: e.ContextInfo,
 		}
 		Respond(w, r, code, msg)
 	} else {
