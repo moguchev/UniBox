@@ -52,8 +52,8 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := models.User{}
-	err = json.Unmarshal(bytes, &user)
+	newUser := models.NewUser{}
+	err = json.Unmarshal(bytes, &newUser)
 	if err != nil {
 		err = models.Error{
 			Type:     models.BadRequest,
@@ -69,14 +69,34 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		"request_id": rID,
 		"place":      "delivery",
 		"action":     "unmarshal",
-	}).Debug(user)
+	}).Debug(newUser)
 
-	err = h.Usecase.CreateUser(ctx, user)
+	err = h.Usecase.CreateUser(ctx, newUser)
+	var code int
 	if err != nil {
-		respond.Error(w, r, http.StatusBadRequest, err)
+		e := err.(models.Error)
+		switch e.Type {
+		case models.AlreadyExists:
+			code = http.StatusConflict
+			break
+		case models.Internal:
+			code = http.StatusInternalServerError
+			break
+		default:
+			code = http.StatusBadRequest
+			break
+		}
+		respond.Error(w, r, code, e)
 		return
 	}
 
+	user := models.User{
+		Nickname:  newUser.Nickname,
+		Email:     newUser.Email,
+		Firstname: newUser.Firstname,
+		Lastname:  newUser.Lastname,
+	}
+	bytes, _ = json.Marshal(user)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(bytes)
 }

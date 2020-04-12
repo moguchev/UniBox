@@ -15,6 +15,7 @@ func (mw *Middleware) AccessLogMiddleware(next http.Handler) http.Handler {
 		start := time.Now()
 		log.WithFields(log.Fields{
 			"method":      r.Method,
+			"URL":         r.URL.Path,
 			"remote_addr": r.RemoteAddr,
 			"request_id":  r.Context().Value(models.CtxKey(models.ReqIDKey)),
 		}).Info(r.URL.Path)
@@ -23,6 +24,7 @@ func (mw *Middleware) AccessLogMiddleware(next http.Handler) http.Handler {
 
 		log.WithFields(log.Fields{
 			"method":      r.Method,
+			"URL":         r.URL.Path,
 			"remote_addr": r.RemoteAddr,
 			"work_time":   time.Since(start),
 			"request_id":  r.Context().Value(models.CtxKey(models.ReqIDKey)),

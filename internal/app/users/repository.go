@@ -8,5 +8,5 @@ import (
 
 // Repository - database level
 type Repository interface {
-	CreateUser(ctx context.Context, user models.User) error
+	CreateUser(ctx context.Context, user models.NewUser) error
 }

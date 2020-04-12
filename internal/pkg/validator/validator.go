@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	nickRgx = "^[a-zA-Z0-9!#$%&'*+=?^_`{|}~.-]{3,20}$"
-	nameRgx = "^[A-Za-zА-Яа-я-]{1,50}$"
+	nickRgx = "^[A-Za-z0-9!#$%&'*+=?^_`{|}~.-]{3,20}$"
+	nameRgx = "^[A-Za-zА-Яа-яЁё-]{1,50}$"
 )
 
-// ValidateCreateUser -
-func ValidateCreateUser(u models.User) (string, error) {
+// ValidateNewUser -
+func ValidateNewUser(u models.NewUser) (string, error) {
 	if ok := ValidateEmail(u.Email); !ok {
 		return "email", errors.New(messages.Invalid)
 	}

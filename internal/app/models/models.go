@@ -11,6 +11,8 @@ const (
 	NotFound
 	// AlreadyExists -
 	AlreadyExists
+	// Invalid -
+	Invalid
 	// Internal -
 	Internal
 )
@@ -50,5 +52,13 @@ type User struct {
 	Nickname  string `json:"nickname"  db:"nickname"`
 	Firstname string `json:"firstname" db:"firstname"`
 	Lastname  string `json:"lastname"  db:"lastname"`
-	Password  string `json:"password,omitempty"`
+}
+
+// NewUser - новый пользователь
+type NewUser struct {
+	Email     string `json:"email"     db:"email"`
+	Nickname  string `json:"nickname"  db:"nickname"`
+	Firstname string `json:"firstname" db:"firstname"`
+	Lastname  string `json:"lastname"  db:"lastname"`
+	Password  string `json:"password"  db:"password_digest"`
 }

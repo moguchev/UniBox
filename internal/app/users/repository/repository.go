@@ -22,63 +22,52 @@ func NewUsersRepository(Conn *sqlx.DB) users.Repository {
 	return &usersRepository{Conn}
 }
 
-func (repo *usersRepository) CreateUser(ctx context.Context, user models.User) error {
+func (repo *usersRepository) CreateUser(ctx context.Context, user models.NewUser) error {
 	rID := ctx.Value(models.CtxKey(models.ReqIDKey))
 	query := `INSERT INTO Users (nickname, password_digest, email, firstname, lastname)
 				VALUES ($1, $2, $3, $4, $5);`
-	res, err := repo.Conn.ExecContext(ctx, query,
+	_, err := repo.Conn.ExecContext(ctx, query,
 		user.Nickname, user.Password, user.Email, user.Firstname, user.Lastname)
-	log.Print(res)
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"request_id": rID,
-			"place":      "repository",
-			"action":     "exec",
-		}).Debug(res, err)
+		var target string
+		errorType := models.NoType
 
 		if e, ok := err.(pgx.PgError); ok {
 			switch e.Code {
 			case psql.UniqueViolation:
-				target := (strings.Split(e.ConstraintName, " ")[1])
-				err = models.Error{
-					Type:     models.AlreadyExists,
-					Target:   target,
-					Message:  e.Error(),
-					Original: e,
+				errorType = models.AlreadyExists
+				target = strings.Split(e.ConstraintName, "_")[1]
+				if target == "pkey" {
+					target = "nickname"
 				}
 				break
+			case psql.CheckViolation:
+				errorType = models.Invalid
+				target = strings.Split(e.ConstraintName, "_")[0]
+				break
 			default:
-				err = models.Error{
-					Type:     models.NoType,
-					Message:  e.Error(),
-					Original: e,
-				}
-				log.Print(e.Code)
-				log.Print(e.ColumnName)
-				log.Print(e.ConstraintName)
-				log.Print(e.DataTypeName)
-				log.Print(e.Detail)
-				log.Print(e.File)
-				log.Print(e.Hint)
-				log.Print(e.InternalPosition)
-				log.Print(e.InternalQuery)
-				log.Print(e.Line)
-				log.Print(e.Message)
-				log.Print(e.Position)
-				log.Print(e.Routine)
-				log.Print(e.SchemaName)
-				log.Print(e.Severity)
-				log.Print(e.TableName)
-				log.Print(e.Where)
+				errorType = models.Internal
+				psql.Print(e)
 				break
 			}
 		} else {
-			err = models.Error{
-				Type:     models.Internal,
-				Message:  err.Error(),
-				Original: err,
-			}
+			errorType = models.Internal
+		}
+		if errorType == models.Internal {
+			log.WithFields(log.Fields{
+				"request_id": rID,
+				"place":      "repository",
+				"action":     "exec",
+				"query":      query,
+				"args":       user,
+			}).Error(err)
+		}
+		err = models.Error{
+			Type:     errorType,
+			Target:   target,
+			Message:  err.Error(),
+			Original: err,
 		}
 	}
 
