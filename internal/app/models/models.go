@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // ErrorType -
 type ErrorType uint
@@ -48,10 +51,11 @@ func (e Error) Error() string {
 
 // User - пользователь
 type User struct {
-	Email     string `json:"email"     db:"email"`
-	Nickname  string `json:"nickname"  db:"nickname"`
-	Firstname string `json:"firstname" db:"firstname"`
-	Lastname  string `json:"lastname"  db:"lastname"`
+	Email            string    `json:"email"             db:"email"`
+	Nickname         string    `json:"nickname"          db:"nickname"`
+	Firstname        string    `json:"firstname"         db:"firstname"`
+	Lastname         string    `json:"lastname"          db:"lastname"`
+	RegistrationTime time.Time `json:"registration_time" db:"registration_time"`
 }
 
 // NewUser - новый пользователь

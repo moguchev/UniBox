@@ -23,10 +23,11 @@ func NewUsersUsecase(repo users.Repository, timeout time.Duration) users.Usecase
 	}
 }
 
-func (u *userUsecase) CreateUser(ctx context.Context, user models.NewUser) error {
+func (u *userUsecase) CreateUser(ctx context.Context, user models.NewUser) (models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 	// rID := ctx.Value(models.CtxKey(models.ReqIDKey))
+	usr := models.User{}
 
 	target, err := validator.ValidateNewUser(user)
 	if err != nil {
@@ -36,10 +37,10 @@ func (u *userUsecase) CreateUser(ctx context.Context, user models.NewUser) error
 			Message:  err.Error(),
 			Original: err,
 		}
-		return err
+		return usr, err
 	}
 
-	err = u.usersRepo.CreateUser(ctx, user)
+	usr, err = u.usersRepo.CreateUser(ctx, user)
 	if err != nil {
 		errorType := models.NoType
 		var msg string
@@ -65,5 +66,5 @@ func (u *userUsecase) CreateUser(ctx context.Context, user models.NewUser) error
 		}
 	}
 
-	return err
+	return usr, err
 }

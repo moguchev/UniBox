@@ -9,5 +9,9 @@ CREATE TABLE Users(
     email Email NOT NULL UNIQUE,
     firstname TEXT NOT NULL,
     lastname TEXT NOT NULL,
-    password_digest TEXT NOT NULL
+    password_digest TEXT NOT NULL,
+    registration_time TIMESTAMP NOT NULL
 );
+
+-- in the end in config
+SET timezone = 'Europe/Moscow';

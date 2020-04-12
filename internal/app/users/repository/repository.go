@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
@@ -22,12 +23,13 @@ func NewUsersRepository(Conn *sqlx.DB) users.Repository {
 	return &usersRepository{Conn}
 }
 
-func (repo *usersRepository) CreateUser(ctx context.Context, user models.NewUser) error {
+func (repo *usersRepository) CreateUser(ctx context.Context, user models.NewUser) (models.User, error) {
 	rID := ctx.Value(models.CtxKey(models.ReqIDKey))
-	query := `INSERT INTO Users (nickname, password_digest, email, firstname, lastname)
-				VALUES ($1, $2, $3, $4, $5);`
+	now := time.Now()
+	query := `INSERT INTO Users (nickname, password_digest, email, firstname, lastname, registration_time)
+				VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;`
 	_, err := repo.Conn.ExecContext(ctx, query,
-		user.Nickname, user.Password, user.Email, user.Firstname, user.Lastname)
+		user.Nickname, user.Password, user.Email, user.Firstname, user.Lastname, now)
 
 	if err != nil {
 		var target string
@@ -71,5 +73,13 @@ func (repo *usersRepository) CreateUser(ctx context.Context, user models.NewUser
 		}
 	}
 
-	return err
+	usr := models.User{
+		Nickname:         user.Nickname,
+		Email:            user.Email,
+		Firstname:        user.Firstname,
+		Lastname:         user.Lastname,
+		RegistrationTime: now,
+	}
+
+	return usr, err
 }

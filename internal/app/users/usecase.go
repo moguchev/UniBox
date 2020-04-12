@@ -8,5 +8,5 @@ import (
 
 // Usecase - business logic
 type Usecase interface {
-	CreateUser(ctx context.Context, user models.NewUser) error
+	CreateUser(ctx context.Context, user models.NewUser) (models.User, error)
 }

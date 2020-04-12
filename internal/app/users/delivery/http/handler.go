@@ -71,7 +71,7 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		"action":     "unmarshal",
 	}).Debug(newUser)
 
-	err = h.Usecase.CreateUser(ctx, newUser)
+	user, err := h.Usecase.CreateUser(ctx, newUser)
 	var code int
 	if err != nil {
 		e := err.(models.Error)
@@ -90,12 +90,6 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := models.User{
-		Nickname:  newUser.Nickname,
-		Email:     newUser.Email,
-		Firstname: newUser.Firstname,
-		Lastname:  newUser.Lastname,
-	}
 	bytes, _ = json.Marshal(user)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(bytes)
